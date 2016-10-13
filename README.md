@@ -1,4 +1,25 @@
-# style loader for webpack
+# Style Loader For Webpack With Server Rendering Support
+
+## Install
+
+```
+npm install sr-style-loader
+```
+
+## What is added/changed?
+
+Most of its behaviours are the same with `webpack/style-loader`, except added server rendering support.
+
+It is assumed in server rendering process if no `window` or `window.SERVER_RENDERING` is present.
+
+If it is in server rendering process, instead of inserting `<style>` or `<link>` tags into `<head>`, all css styles will only be collected. They are stored into `window.SERVER_RENDERING.styles` if it is available as an Array. Otherwise all styles are just ignored.
+
+Then you may deal the styles at your own purpose.
+
+
+---
+
+# style loader for webpack ( from webpack/style-loader )
 
 Adds CSS to the DOM by injecting a `<style>` tag
 
@@ -73,12 +94,6 @@ So the recommended configuration for webpack is:
 ```
 
 **Note** about source maps support and assets referenced with `url`: when style loader is used with ?sourceMap option, the CSS modules will be generated as `Blob`s, so relative paths don't work (they would be relative to `chrome:blob` or `chrome:devtools`). In order for assets to maintain correct paths setting `output.publicPath` property of webpack configuration must be set, so that absolute paths are generated.
-
-## Install
-
-```
-npm install style-loader
-```
 
 ## License
 
