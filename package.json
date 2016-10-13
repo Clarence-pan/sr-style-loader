@@ -1,14 +1,14 @@
 {
-  "name": "style-loader",
+  "name": "sr-style-loader",
   "version": "0.13.1",
-  "author": "Tobias Koppers @sokra",
-  "description": "style loader module for webpack",
+  "author": "Tobias Koppers @sokra, Clarence-pan",
+  "description": "style loader module for webpack with server rendering support",
   "devDependencies": {
     "css-loader": "~0.8.0"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:webpack/style-loader.git"
+    "url": "git@github.com:Clarence-pan/sr-style-loader.git"
   },
   "license": "MIT",
   "dependencies": {

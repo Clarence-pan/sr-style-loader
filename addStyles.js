@@ -2,7 +2,8 @@
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
-var stylesInDom = {},
+var serverRendering = (typeof window === 'undefined' || window.SERVER_RENDERING),
+	stylesInDom = {},
 	memoize = function(fn) {
 		var memo;
 		return function () {
@@ -11,10 +12,10 @@ var stylesInDom = {},
 		};
 	},
 	isOldIE = memoize(function() {
-		return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		return !serverRendering && /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
 	}),
 	getHeadElement = memoize(function () {
-		return document.head || document.getElementsByTagName("head")[0];
+		return !serverRendering && (document.head || document.getElementsByTagName("head")[0]);
 	}),
 	singletonElement = null,
 	singletonCounter = 0,
@@ -142,6 +143,9 @@ function createLinkElement(options) {
 
 function addStyle(obj, options) {
 	var styleElement, update, remove;
+	if (serverRendering){
+		return addStyles_sr(obj, options);
+	}
 
 	if (options.singleton) {
 		var styleIndex = singletonCounter++;
@@ -180,6 +184,74 @@ function addStyle(obj, options) {
 			remove();
 		}
 	};
+}
+
+function addStyles_sr(obj, options){
+	var styleElement, update, remove;
+
+	if (!serverRendering){
+		console.log("Error: server rendering is not in process!");
+		return ;
+	}
+
+	if (!serverRendering.styles){
+		console.log("Warnning: server rendering without styles!");
+		return ;
+	}
+
+	styleElement = {
+		"css": minifyCss_sr(obj.css),
+		"media": obj.media,
+		"sourceMap": obj.sourceMap
+	};
+
+
+	update = function(newObj){
+		// update it if exist
+		for (var i = 0, len = serverRendering.styles.length; i < len; i++){
+			if (serverRendering.styles[i] === styleElement){
+				serverRendering.styles.splice(i, 1, {
+					"css": minifyCss_sr(newObj.css),
+					"media": newObj.media,
+					"sourceMap": newObj.sourceMap
+				});
+				return;
+			}
+		}
+
+		// if not exist, then add it at end
+		serverRendering.styles.push(styleElement);
+	};
+
+	remove = function(){
+		for (var i = 0, len = serverRendering.styles.length; i < len; i++){
+			if (serverRendering.styles[i] === styleElement){
+				serverRendering.styles.splice(i, 1);
+				return;
+			}
+		}
+	};
+
+	update(obj);
+
+	return function updateStyle(newObj) {
+		if (newObj) {
+			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+				return;
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+// the css is not minified, so minify it!
+function minifyCss_sr(css){
+	if (!css){
+		return css;
+	}
+
+	return css.replace(/\s+/g, ' ');
 }
 
 var replaceText = (function () {
