@@ -1,6 +1,6 @@
 {
   "name": "sr-style-loader",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "author": "Tobias Koppers @sokra, Clarence-pan",
   "description": "style loader module for webpack with server rendering support",
   "devDependencies": {
